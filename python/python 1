@@ -1,0 +1,74 @@
+
+# Milk Payment System
+
+MIN_FAT = 2.0
+MAX_FAT = 7.0
+TOTAL_DAYS = 10
+RATE_PER_LITRE = 30.0  # Assumed rate
+
+farmers = []
+ten_day_totals = {}
+
+n = int(input("Enter number of farmer entries: "))
+
+for i in range(n):
+    print("\nFarmer Entry", i + 1)
+
+    farmer_id = input("Enter Farmer ID: ")
+    litres = float(input("Enter litres: "))
+    fat = float(input("Enter fat percentage: "))
+    snf = float(input("Enter SNF percentage: "))
+    shift = input("Enter shift (Morning/Evening): ").strip().title()
+
+    if farmer_id == "":
+        print("Invalid farmer ID.")
+        continue
+
+    if litres < 0:
+        print("Litres cannot be negative.")
+        continue
+
+    if not (MIN_FAT <= fat <= MAX_FAT):
+        print("Fat must be between 2% and 7%.")
+        continue
+
+    if not (0 <= snf <= 100):
+        print("Invalid SNF percentage.")
+        continue
+
+    if shift not in ["Morning", "Evening"]:
+        print("Invalid shift.")
+        continue
+
+    rate = RATE_PER_LITRE
+    amount = litres * rate
+
+    record = (farmer_id, litres, fat, snf, shift, rate, amount)
+    farmers.append(record)
+
+    ten_day_totals[farmer_id] = (
+        ten_day_totals.get(farmer_id, 0) + amount
+    )
+
+print("\n===== MILK PAYMENT REPORT =====")
+
+for record in farmers:
+    farmer_id, litres, fat, snf, shift, rate, amount = record
+
+    print("\nFarmer ID:", farmer_id)
+    print("Litres:", litres)
+    print("Fat:", fat, "%")
+    print("SNF:", snf, "%")
+    print("Shift:", shift)
+    print("Rate per litre: Rs.", round(rate, 2))
+    print("Amount payable: Rs.", round(amount, 2))
+
+print("\n===== TEN-DAY PAYMENT TOTALS =====")
+
+for farmer_id, total in ten_day_totals.items():
+    print(farmer_id, ": Rs.", round(total, 2))
+
+print("\nProgram completed successfully.")
+print("Note: The rate is assumed to be Rs. 30 per litre.")
+print("Enter all 10 days of deliveries for actual ten-day totals.")
+
