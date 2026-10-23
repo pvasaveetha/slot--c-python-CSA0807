@@ -1,0 +1,59 @@
+
+# TASK 5: Read Input and Convert Types
+
+def read_number(prompt):
+    while True:
+        text = input(prompt).strip()
+
+        # Check and convert the input
+        try:
+            value = float(text)
+            return value
+        except ValueError:
+            print("Invalid input! Enter a number like 8.5.")
+
+
+# Read farmer details
+farmer_id = input("Enter Farmer ID: ").strip()
+
+litres = read_number("Enter litres of milk: ")
+fat = read_number("Enter fat percentage: ")
+snf = read_number("Enter SNF percentage: ")
+
+shift = input("Enter shift (Morning/Evening): ").strip().title()
+
+# Validate the values
+if farmer_id == "":
+    print("Error: Farmer ID cannot be empty.")
+
+elif litres < 0:
+    print("Error: Litres cannot be negative.")
+
+elif not (2.0 <= fat <= 7.0):
+    print("Error: Fat must be between 2.0 and 7.0.")
+
+elif not (0 <= snf <= 100):
+    print("Error: SNF must be between 0 and 100.")
+
+elif shift not in ["Morning", "Evening"]:
+    print("Error: Shift must be Morning or Evening.")
+
+else:
+    # Example rate formula
+    BASE_RATE = 30.0
+    FAT_RATE = 0.40
+    SNF_RATE = 0.30
+
+    rate = BASE_RATE + fat * FAT_RATE + snf * SNF_RATE
+    amount = litres * rate
+
+    # Display aligned output
+    print("\n========== MILK PAYMENT ==========")
+    print(f"{'Farmer ID':<20}: {farmer_id}")
+    print(f"{'Litres':<20}: {litres:8.2f}")
+    print(f"{'Fat %':<20}: {fat:8.2f}")
+    print(f"{'SNF %':<20}: {snf:8.2f}")
+    print(f"{'Shift':<20}: {shift}")
+    print(f"{'Rate per litre':<20}: Rs. {rate:8.2f}")
+    print(f"{'Amount payable':<20}: Rs. {amount:8.2f}")
+
