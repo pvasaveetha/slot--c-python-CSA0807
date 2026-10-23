@@ -1,0 +1,87 @@
+
+# TASK 6: Organise the Logic into Functions
+
+# Named constants
+BASE_RATE = 30.0
+FAT_RATE = 0.40
+SNF_RATE = 0.30
+TOTAL_DAYS = 10
+
+
+def rate_per_litre(fat, snf):
+    """Calculate the milk rate using fat and SNF percentages."""
+    rate = BASE_RATE + (fat * FAT_RATE) + (snf * SNF_RATE)
+    return rate
+
+
+def payout(litres, rate):
+    """Calculate the total payment for the supplied milk."""
+    amount = litres * rate
+    return amount
+
+
+def ten_day_total(payments):
+    """Calculate the total of payments made over ten days."""
+    total = 0.0
+
+    for amount in payments:
+        total += amount
+
+    return total
+
+
+def display_payment(farmer_id, litres, fat, snf, shift, rate, amount):
+    """Print the payment details in a readable format."""
+    print("\n========== MILK PAYMENT ==========")
+    print(f"{'Farmer ID':<20}: {farmer_id}")
+    print(f"{'Litres':<20}: {litres:8.2f}")
+    print(f"{'Fat %':<20}: {fat:8.2f}")
+    print(f"{'SNF %':<20}: {snf:8.2f}")
+    print(f"{'Shift':<20}: {shift}")
+    print(f"{'Rate per litre':<20}: Rs. {rate:8.2f}")
+    print(f"{'Amount payable':<20}: Rs. {amount:8.2f}")
+
+
+def main():
+    """Read entries, calculate payments, and display totals."""
+    payments = []
+
+    n = int(input("Enter number of farmer entries: "))
+
+    for i in range(n):
+        print(f"\nEntry {i + 1}")
+
+        farmer_id = input("Enter Farmer ID: ")
+        litres = float(input("Enter litres: "))
+        fat = float(input("Enter fat percentage: "))
+        snf = float(input("Enter SNF percentage: "))
+        shift = input("Enter shift (Morning/Evening): ").strip().title()
+
+        if litres < 0 or not (2.0 <= fat <= 7.0):
+            print("Invalid litres or fat percentage. Entry skipped.")
+            continue
+
+        if not (0 <= snf <= 100):
+            print("Invalid SNF percentage. Entry skipped.")
+            continue
+
+        if shift not in ["Morning", "Evening"]:
+            print("Invalid shift. Entry skipped.")
+            continue
+
+        rate = rate_per_litre(fat, snf)
+        amount = payout(litres, rate)
+
+        payments.append(amount)
+
+        display_payment(
+            farmer_id, litres, fat, snf, shift, rate, amount
+        )
+
+    total = ten_day_total(payments)
+    print(f"\nTotal of entered payments: Rs. {total:.2f}")
+    print("Note: Enter all ten days of payments for a true ten-day total.")
+
+
+if __name__ == "__main__":
+    main()
