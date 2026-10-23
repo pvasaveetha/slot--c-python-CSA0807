@@ -1,0 +1,83 @@
+
+# TASK 1: Milk Payment System
+
+# Named constants
+MIN_FAT = 2.0
+MAX_FAT = 7.0
+TOTAL_DAYS = 10
+RATE_PER_LITRE = 30.0  # Assumed rate for demonstration
+
+# Store farmer records
+farmers = []
+
+# Get the number of farmer entries
+n = int(input("Enter the number of farmer entries: "))
+
+for i in range(n):
+    print(f"\nEnter details for farmer entry {i + 1}")
+
+    farmer_id = input("Enter Farmer ID: ")
+    litres = float(input("Enter litres of milk: "))
+    fat = float(input("Enter fat percentage: "))
+    snf = float(input("Enter SNF percentage: "))
+    shift = input("Enter shift (Morning/Evening): ").strip().title()
+
+    # Validate inputs
+    if farmer_id == "":
+        print("Invalid Farmer ID. Entry rejected.")
+        continue
+
+    if litres < 0:
+        print("Invalid litres. Quantity cannot be negative.")
+        continue
+
+    if not (MIN_FAT <= fat <= MAX_FAT):
+        print("Invalid fat percentage. Must be between 2% and 7%.")
+        continue
+
+    if snf < 0 or snf > 100:
+        print("Invalid SNF percentage.")
+        continue
+
+    if shift not in ["Morning", "Evening"]:
+        print("Invalid shift. Entry rejected.")
+        continue
+
+    # Calculate payment
+    rate = RATE_PER_LITRE
+    amount = litres * rate
+
+    # Store all details in one tuple
+    record = (farmer_id, litres, fat, snf, shift, rate, amount)
+    farmers.append(record)
+
+# Display payment details
+print("\n========== MILK PAYMENT REPORT ==========")
+
+ten_day_totals = {}
+
+for record in farmers:
+    farmer_id, litres, fat, snf, shift, rate, amount = record
+
+    print("\nFarmer ID:", farmer_id)
+    print("Litres:", litres)
+    print("Fat %:", fat)
+    print("SNF %:", snf)
+    print("Shift:", shift)
+    print("Rate per litre: Rs.", round(rate, 2))
+    print("Amount payable: Rs.", round(amount, 2))
+
+    # Add payment to the farmer's total
+    ten_day_totals[farmer_id] = (
+        ten_day_totals.get(farmer_id, 0) + amount
+    )
+
+print("\n========== TEN-DAY TOTALS ==========")
+
+for farmer_id, total in ten_day_totals.items():
+    print("Farmer ID:", farmer_id,
+          "| Total payment: Rs.", round(total, 2))
+
+print("\nNote: Ten-day totals are based on the entries provided.")
+print("For a true ten-day total, enter all valid deliveries")
+print("for each farmer across the ten-day period.")
