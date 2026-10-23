@@ -1,0 +1,60 @@
+
+import math
+
+# Named constants
+BASE_RATE = 30.0
+FAT_RATE = 0.40
+SNF_RATE = 0.30
+BASE_FAT = 3.5
+BASE_SNF = 8.0
+FAT_STEP = 0.1
+SNF_STEP = 0.1
+
+# Input values
+fat = 4.2
+snf = 8.5
+litres = 10.0
+
+# Calculate the number of fat and SNF steps
+fat_steps = round((fat - BASE_FAT) / FAT_STEP)
+snf_steps = round((snf - BASE_SNF) / SNF_STEP)
+
+# Calculate rate and payment amount
+rate = BASE_RATE + fat_steps * FAT_RATE + snf_steps * SNF_RATE
+amount = litres * rate
+
+print("Fat steps:", fat_steps)
+print("SNF steps:", snf_steps)
+print("Rate per litre: Rs.", round(rate, 2))
+print("Amount: Rs.", round(amount, 2))
+
+# Unexpected expression results
+print("\n--- Unexpected Results ---")
+print("(4.2 - 3.5) / 0.1 =", (4.2 - 3.5) / 0.1)
+print("0.1 + 0.2 =", 0.1 + 0.2)
+print("round(-2.5) =", round(-2.5))
+print("int(-2.5) =", int(-2.5))
+print("floor(-2.5) =", math.floor(-2.5))
+
+# Compare methods for fat values
+print("\n--- Step Calculation Comparison ---")
+for fat_value in [4.2, 3.1]:
+    steps = (fat_value - BASE_FAT) / FAT_STEP
+
+    round_steps = round(steps)
+    int_steps = int(steps)
+    floor_steps = math.floor(steps)
+
+    print("\nFat:", fat_value)
+    print("Raw steps:", steps)
+    print("round() steps:", round_steps,
+          "Rate:", BASE_RATE + round_steps * FAT_RATE)
+    print("int() steps:", int_steps,
+          "Rate:", BASE_RATE + int_steps * FAT_RATE)
+    print("floor() steps:", floor_steps,
+          "Rate:", BASE_RATE + floor_steps * FAT_RATE)
+
+# Comparison chaining and Boolean operators
+print("\n--- Validation ---")
+print("Fat valid:", 2.0 <= fat <= 7.0)
+print("All values valid:", 2.0 <= fat <= 7.0 and litres >= 0)
