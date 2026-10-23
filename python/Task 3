@@ -1,0 +1,59 @@
+
+# TASK 3: Choose Variables and Name the Constants
+
+# Named constants
+BASE_RATE = 30.0
+FAT_RATE = 0.40
+SNF_RATE = 0.30
+
+MIN_FAT = 2.0
+MAX_FAT = 7.0
+MIN_SNF = 0.0
+MAX_SNF = 100.0
+
+TOTAL_DAYS = 10
+
+# Input values
+farmer_id = "F101"
+litres = 10.5
+fat = 4.5
+snf = 8.5
+shift = "Morning"
+
+# Calculate rate using the named constants
+rate = BASE_RATE + (fat * FAT_RATE) + (snf * SNF_RATE)
+
+# Calculate payment
+amount = litres * rate
+
+# Display the results
+print("Farmer ID:", farmer_id)
+print("Litres:", litres)
+print("Fat percentage:", fat)
+print("SNF percentage:", snf)
+print("Shift:", shift)
+print("Rate per litre: Rs.", round(rate, 2))
+print("Amount payable: Rs.", round(amount, 2))
+
+# Dynamic typing
+value = 10
+print("Value:", value, "| Type:", type(value))
+
+value = "Morning"
+print("Value:", value, "| Type:", type(value))
+
+# Multiple assignment
+a = 10
+b = 20
+
+print("Before swapping:", a, b)
+
+a, b = b, a
+
+print("After swapping:", a, b)
+
+# Display named constants
+print("Base rate:", BASE_RATE)
+print("Fat rate:", FAT_RATE)
+print("SNF rate:", SNF_RATE)
+print("Payment period:", TOTAL_DAYS, "days")
