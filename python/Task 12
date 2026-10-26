@@ -1,0 +1,207 @@
+
+from decimal import Decimal, ROUND_HALF_UP
+
+# TASK 12: Adapted Milk Payment Calculator
+
+CENT = Decimal("0.01")
+STEP = Decimal("0.1")
+
+BASE_FAT = Decimal("3.50")
+BASE_SNF = Decimal("8.50")
+MIN_FAT = Decimal("2.00")
+MAX_FAT = Decimal("7.00")
+
+SNF_STEP_RATE = Decimal("0.30")  # Assumed unchanged from earlier example
+
+
+def money(value):
+    return Decimal(value).quantize(CENT, rounding=ROUND_HALF_UP)
+
+
+def select_rate_card(season):
+    """Select the rate card according to the season."""
+    if season == "april-june":
+        return {
+            "base_rate": Decimal("32.00"),
+            "fat_step_rate": Decimal("0.45")
+        }
+    elif season == "other":
+        return {
+            "base_rate": Decimal("30.00"),
+            "fat_step_rate": Decimal("0.40")
+        }
+    else:
+        raise ValueError("Season must be april-june or other.")
+
+
+def calculate_rate(fat, snf, season):
+    """Calculate rate using two-decimal analyser readings."""
+    fat = Decimal(str(fat))
+    snf = Decimal(str(snf))
+
+    if not MIN_FAT <= fat <= MAX_FAT:
+        raise ValueError("Fat must be between 2.00% and 7.00%.")
+
+    if not Decimal("0") <= snf <= Decimal("100"):
+        raise ValueError("SNF must be between 0.00% and 100.00%.")
+
+    card = select_rate_card(season)
+
+    fat_steps = (fat - BASE_FAT) / STEP
+    snf_steps = (snf - BASE_SNF) / STEP
+
+    rate = (
+        card["base_rate"]
+        + fat_steps * card["fat_step_rate"]
+        + snf_steps * SNF_STEP_RATE
+    )
+
+    return money(rate)
+
+
+def calculate_payment(litres, fat, snf, season):
+    litres = Decimal(str(litres))
+
+    if litres <= 0:
+        raise ValueError("Litres must be greater than zero.")
+
+    rate = calculate_rate(fat, snf, season)
+    payment = money(litres * rate)
+
+    return rate, payment
+
+
+def calculate_bonus(total_litres):
+    """Bonus applies only when total supply exceeds 500 litres."""
+    total_litres = Decimal(str(total_litres))
+
+    if total_litres > Decimal("500"):
+        return money(total_litres * Decimal("0.50"))
+
+    return Decimal("0.00")
+
+
+def run_tests():
+    print("TASK 12: TEST RESULTS")
+    print("-" * 65)
+
+    # (test name, litres, fat, SNF, season, expected rate, expected payment)
+    tests = [
+        ("April-June standard", "10", "3.50", "8.50",
+         "april-june", "32.00", "320.00"),
+
+        ("Other-season standard", "10", "3.50", "8.50",
+         "other", "30.00", "300.00"),
+
+        ("April-June two-decimal reading", "10", "3.57", "8.52",
+         "april-june", "32.38", "323.80"),
+
+        ("Other-season two-decimal reading", "10", "3.57", "8.52",
+         "other", "30.34", "303.40"),
+    ]
+
+    for name, litres, fat, snf, season, expected_rate, expected_payment in tests:
+        rate, payment = calculate_payment(litres, fat, snf, season)
+
+        assert rate == Decimal(expected_rate)
+        assert payment == Decimal(expected_payment)
+
+        print(
+            f"{name}: PASS | Rate Rs.{rate} | "
+            f"Payment Rs.{payment}"
+        )
+
+    print("\nBONUS TESTS")
+
+    bonus_tests = [
+        ("Exactly 500 litres", "500", "0.00"),
+        ("501 litres", "501", "250.50"),
+        ("600 litres", "600", "300.00"),
+    ]
+
+    for name, litres, expected in bonus_tests:
+        bonus = calculate_bonus(litres)
+        assert bonus == Decimal(expected)
+        print(f"{name}: PASS | Bonus Rs.{bonus}")
+
+    print("\nINVALID INPUT TESTS")
+
+    invalid_tests = [
+        ("Fat too low", "10", "1.99", "8.50", "april-june"),
+        ("Fat too high", "10", "7.01", "8.50", "april-june"),
+        ("Invalid season", "10", "3.50", "8.50", "winter"),
+        ("Negative litres", "-5", "3.50", "8.50", "other"),
+    ]
+
+    for name, litres, fat, snf, season in invalid_tests:
+        try:
+            calculate_payment(litres, fat, snf, season)
+            raise AssertionError(name + " should be rejected")
+        except ValueError:
+            print(f"{name}: PASS | Invalid input rejected")
+
+    print("\nALL TESTS PASSED!")
+
+
+def main():
+    print("\nTEN-DAY MILK PAYMENT SYSTEM")
+
+    farmer_id = input("Enter farmer ID: ").strip()
+    if not farmer_id:
+        print("Farmer ID cannot be empty.")
+        return
+
+    season = input(
+        "Enter season (april-june or other): "
+    ).strip().lower()
+
+    # Check the season before collecting entries
+    try:
+        select_rate_card(season)
+    except ValueError as error:
+        print(error)
+        return
+
+    total_litres = Decimal("0")
+    total_payment = Decimal("0")
+
+    for day in range(1, 11):
+        print(f"\nDay {day}")
+
+        while True:
+            try:
+                litres = Decimal(input("Enter litres: "))
+                fat = Decimal(input("Enter fat (%): "))
+                snf = Decimal(input("Enter SNF (%): "))
+
+                rate, payment = calculate_payment(
+                    litres, fat, snf, season
+                )
+                break
+
+            except (ValueError, ArithmeticError) as error:
+                print("Invalid entry:", error)
+                print("Please enter the day's values again.")
+
+        total_litres += litres
+        total_payment += payment
+
+        print("Rate per litre: Rs.", rate)
+        print("Payment: Rs.", payment)
+
+    total_payment = money(total_payment)
+    bonus = calculate_bonus(total_litres)
+    final_payment = money(total_payment + bonus)
+
+    print("\nFINAL TEN-DAY STATEMENT")
+    print("Farmer ID:", farmer_id)
+    print("Season:", season)
+    print("Total litres:", total_litres)
+    print("Milk payment: Rs.", total_payment)
+    print("Bonus: Rs.", bonus)
+    print("Final payment: Rs.", final_payment)
+
+
+if __name__ == "__main__":
+    run_tests()
+    main()
