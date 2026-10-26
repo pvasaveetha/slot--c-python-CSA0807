@@ -1,0 +1,87 @@
+
+from decimal import Decimal, ROUND_HALF_UP
+from time import perf_counter
+
+SIZES = [300, 6000, 150000]
+
+
+def timed_float(n):
+    start = perf_counter()
+    total = sum([0.1] * n)
+    elapsed = perf_counter() - start
+    return total, elapsed
+
+
+def timed_decimal(n):
+    payment = Decimal("0.1")
+    start = perf_counter()
+    total = sum([payment] * n, Decimal("0"))
+    elapsed = perf_counter() - start
+    return total, elapsed
+
+
+print("TASK 10: FLOAT vs DECIMAL")
+print("-" * 75)
+print(f"{'Payments':>10} {'Float total':>18} {'Decimal total':>18} "
+      f"{'Difference':>14}")
+print("-" * 75)
+
+for n in SIZES:
+    float_total, float_time = timed_float(n)
+    decimal_total, decimal_time = timed_decimal(n)
+
+    difference = abs(Decimal(str(float_total)) - decimal_total)
+
+    print(f"{n:>10} {float_total:>18.10f} "
+          f"{str(decimal_total):>18} {str(difference):>14}")
+
+    print(f"  Float time: {float_time:.6f} seconds")
+    print(f"  Decimal time: {decimal_time:.6f} seconds")
+
+
+# Compare rounding each payment with rounding only the final total
+print("\nROUNDING COMPARISON")
+payment = Decimal("0.105")
+n = 300
+
+round_each = payment.quantize(
+    Decimal("0.01"), rounding=ROUND_HALF_UP
+) * n
+
+round_total = (payment * n).quantize(
+    Decimal("0.01"), rounding=ROUND_HALF_UP
+)
+
+print("Payments:", n)
+print("Rounding each payment:", round_each)
+print("Rounding only the total:", round_total)
+
+
+# Rate table: calculate each (fat, SNF) rate once, then look it up
+def calculate_rate(fat, snf):
+    return 30 + round((fat - 3.5) / 0.1) * 0.40 + round(
+        (snf - 8.5) / 0.1
+    ) * 0.30
+
+
+pairs = [(3.5, 8.5), (4.0, 8.5), (3.0, 8.0), (4.5, 9.0)]
+entries = [pairs[i % len(pairs)] for i in range(150000)]
+
+start = perf_counter()
+recalculated = [calculate_rate(fat, snf) for fat, snf in entries]
+recalculation_time = perf_counter() - start
+
+start = perf_counter()
+rate_table = {pair: calculate_rate(*pair) for pair in set(entries)}
+looked_up = [rate_table[pair] for pair in entries]
+lookup_time = perf_counter() - start
+
+assert recalculated == looked_up
+
+print("\nRATE TABLE COMPARISON")
+print("Entries:", len(entries))
+print("Different (fat, SNF) pairs:", len(rate_table))
+print(f"Recalculation time: {recalculation_time:.6f} seconds")
+print(f"Rate table lookup time (including table creation): "
+      f"{lookup_time:.6f} seconds")
+print("Both methods give the same rates.")
