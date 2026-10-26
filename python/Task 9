@@ -1,0 +1,121 @@
+
+# TASK 9: Milk Payment Calculator and Automated Tests
+
+BASE_RATE = 30.00
+BASE_FAT = 3.5
+BASE_SNF = 8.5
+MIN_FAT = 2.0
+MAX_FAT = 7.0
+
+
+def calculate_rate(fat, snf):
+    """Calculate rate per litre using the rate card."""
+    fat = float(fat)
+    snf = float(snf)
+
+    if not MIN_FAT <= fat <= MAX_FAT:
+        raise ValueError("Fat must be between 2.0% and 7.0%.")
+
+    if not 0 <= snf <= 100:
+        raise ValueError("SNF must be between 0% and 100%.")
+
+    fat_steps = round((fat - BASE_FAT) / 0.1)
+    snf_steps = round((snf - BASE_SNF) / 0.1)
+
+    rate = BASE_RATE + fat_steps * 0.40 + snf_steps * 0.30
+    return round(rate, 2)
+
+
+def calculate_payment(litres, fat, snf):
+    """Validate inputs and calculate the milk payment."""
+    try:
+        litres = float(litres)
+        fat = float(fat)
+        snf = float(snf)
+    except (ValueError, TypeError):
+        raise ValueError("Litres, fat and SNF must be numbers.")
+
+    if litres <= 0:
+        raise ValueError("Litres must be greater than zero.")
+
+    rate = calculate_rate(fat, snf)
+    payment = round(litres * rate, 2)
+
+    return rate, payment
+
+
+def run_tests():
+    print("TASK 9 - AUTOMATED TESTS")
+    print("-" * 65)
+
+    # Normal, boundary and invalid test cases
+    tests = [
+        ("Standard values", 10, 3.5, 8.5, 30.00, 300.00),
+        ("Fat and SNF above standard", 10, 4.2, 8.7, 33.40, 334.00),
+        ("Fat and SNF below standard", 10, 3.1, 8.3, 27.80, 278.00),
+        ("Lowest allowed fat", 10, 2.0, 8.5, 24.00, 240.00),
+        ("Highest allowed fat", 10, 7.0, 8.5, 44.00, 440.00),
+    ]
+
+    print("VALID TESTS")
+    for name, litres, fat, snf, expected_rate, expected_payment in tests:
+        rate, payment = calculate_payment(litres, fat, snf)
+
+        assert rate == expected_rate
+        assert payment == expected_payment
+
+        print(
+            f"{name}: PASS | Expected: Rs.{expected_payment:.2f}"
+            f" | Actual: Rs.{payment:.2f}"
+        )
+
+    print("\nINVALID TESTS")
+
+    invalid_tests = [
+        ("Text input", "abc", 3.5, 8.5),
+        ("Negative quantity", -5, 3.5, 8.5),
+        ("Fat below range", 10, 1.5, 8.5),
+        ("Fat above range", 10, 7.5, 8.5),
+    ]
+
+    for name, litres, fat, snf in invalid_tests:
+        try:
+            calculate_payment(litres, fat, snf)
+            assert False, name + " should be rejected"
+        except ValueError:
+            print(f"{name}: PASS | Expected: Rejected | Actual: Rejected")
+
+    print("\nFIVE-ENTRY MANUAL CHECK")
+
+    entries = [
+        (10, 3.5, 8.5),  # Rs.300.00
+        (8, 4.0, 8.5),   # Rs.256.00
+        (12, 3.0, 8.0),  # Rs.318.00
+        (5, 5.0, 9.0),   # Rs.187.50
+        (6, 2.5, 8.5),   # Rs.156.00
+    ]
+
+    expected_payments = [300.00, 256.00, 318.00, 187.50, 156.00]
+    actual_payments = []
+
+    for entry in entries:
+        rate, payment = calculate_payment(*entry)
+        actual_payments.append(payment)
+        print(
+            f"Litres={entry[0]}, Fat={entry[1]}%, SNF={entry[2]}% "
+            f"| Rate=Rs.{rate:.2f} | Payment=Rs.{payment:.2f}"
+        )
+
+    expected_total = round(sum(expected_payments), 2)
+    actual_total = round(sum(actual_payments), 2)
+
+    assert actual_payments == expected_payments
+    assert actual_total == expected_total
+
+    print(f"Expected total: Rs.{expected_total:.2f}")
+    print(f"Actual total:   Rs.{actual_total:.2f}")
+    print("\nALL TESTS PASSED!")
+
+
+if __name__ == "__main__":
+    run_tests()
